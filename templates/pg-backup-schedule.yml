@@ -1,0 +1,17 @@
+apiVersion: sql.tanzu.vmware.com/v1
+kind: PostgresBackupSchedule
+metadata:
+  name: pg-backup-schedule
+  labels:
+    plan: {{ .Plan.Name }}
+    org: {{ .OrgID }}
+    space: {{ .SpaceID }}
+    deleteOnUnprovision: "true"
+spec:
+  backupTemplate:
+    spec:
+       sourceInstance:
+          name: postgres-db
+       type: full
+  schedule: {{ .Plan.GetConfigValue "backupschedule" }}
+

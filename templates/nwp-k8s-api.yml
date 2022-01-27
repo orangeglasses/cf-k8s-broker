@@ -8,7 +8,6 @@ metadata:
     org: {{ .OrgID }}
     space: {{ .SpaceID }}
     deleteOnUnprovision: "false"
-    cpu: {{ .Plan.GetConfigValue "cpu" }}
 spec:
   egress:
   - to:

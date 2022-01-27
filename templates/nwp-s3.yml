@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: s3-nwp
+  labels:
+    plan: {{ .Plan.Name }}
+    org: {{ .OrgID }}
+    space: {{ .SpaceID }}
+    deleteOnUnprovision: "false"
+spec:
+  egress:
+  - to:
+    - ipBlock:
+        cidr: {{ .Plan.GetConfigValue "s3ip1" }}/32
+    - ipBlock:
+        cidr: {{ .Plan.GetConfigValue "s3ip2" }}/32
+    ports:
+    - protocol: TCP
+      port: {{ .Plan.GetConfigValue "s3port" }} 
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+  - Egress

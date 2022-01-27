@@ -1,0 +1,21 @@
+---
+apiVersion: sql.tanzu.vmware.com/v1
+kind: PostgresBackupLocation
+metadata:
+  name: pg-backup-location
+  labels:
+    plan: {{ .Plan.Name }}
+    org: {{ .OrgID }}
+    space: {{ .SpaceID }}
+    deleteOnUnprovision: "false"
+spec:
+  storage:
+    s3:
+      bucket: {{ .Plan.GetConfigValue "s3bucket" }}
+      bucketPath: /tsmgr-{{ .InstanceID }}
+      region: {{ .Plan.GetConfigValue "s3region"  }}
+      endpoint: {{ .Plan.GetConfigValue "s3endpoint" }}:{{ .Plan.GetConfigValue "s3port" }}
+      forcePathStyle: true
+      enableSSL: false
+      secret:
+        name: pg-backup-s3-secret

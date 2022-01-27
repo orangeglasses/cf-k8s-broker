@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: metrics-nwp
+  labels:
+    plan: {{ .Plan.Name }}
+    org: {{ .OrgID }}
+    space: {{ .SpaceID }}
+    deleteOnUnprovision: "false"
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          networking/namespace: monitoring
+  - ports:
+    - port: 9187
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app: postgres
+      type: data
+  policyTypes:
+  - Ingress

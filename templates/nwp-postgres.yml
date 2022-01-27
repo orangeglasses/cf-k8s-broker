@@ -1,0 +1,36 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-nwp
+  labels:
+    plan: {{ .Plan.Name }}
+    org: {{ .OrgID }}
+    space: {{ .SpaceID }}
+    deleteOnUnprovision: "false"
+spec:
+  egress:
+  - to:
+    - podSelector: {}
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 100.64.0.0/10
+    - ipBlock:
+        cidr: 172.31.0.0/16
+    - namespaceSelector:
+        matchLabels:
+          name: nginx-ingress
+      podSelector:
+        matchLabels:
+          app: nginx-ingress
+    - podSelector: {}
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  

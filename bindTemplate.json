@@ -1,0 +1,23 @@
+{{- $namespace := GetObjectByLabel "" "Namespace" "instanceID" .InstanceID -}}
+{{- $nsname := $namespace.GetName -}}
+{{- $instance := GetObjectByLabel $nsname "deployment.apps" "instanceID" .InstanceID -}}
+{{- $instanceName := $instance.GetName -}}
+{{- $secretName := printf "%s%s" $instanceName "-db-secret" -}}
+{{- $secret := GetObjectByName $nsname "Secret" $secretName -}}
+{{- $svcName := $instanceName -}}
+{{- $service := GetObjectByName $nsname "Service" $svcName -}}
+{{- $hostname := "10.151.10.1" -}}
+{{- $username := index $secret.Object "data" "username" | base64decode -}}
+{{- $password := index $secret.Object "data" "password" | base64decode -}}
+{{- $dbname := index $secret.Object "data" "dbname" | base64decode -}}
+{{- $port := 5432}}
+{
+    "hostname": "{{$hostname}}",
+    "name": "{{$instanceName}}",
+    "jdbcUrl": "{{printf "jdbc:postgresql://%s:%v/%s?user=%s&password=%s&userSSL=false&targetServerType=primary" $hostname $port $dbname $username $password}}",
+    "uri": "{{printf "postgresql://%s:%s@%s:%v/%s?target_session_attrs=read-write" $username $password $hostname $port $dbname}}",
+    "password": "{{$password}}",
+    "port": "{{$port}}",
+    "username": "{{$username}}",
+    "dbname": "{{$dbname}}"
+}

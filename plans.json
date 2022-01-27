@@ -1,0 +1,56 @@
+{ 
+  "db-small": {    
+    "description": "Small pg db",
+    "free": true,      
+    "displayName": "DB-Small",
+    "maintenance_info": {
+      "version": "0",
+      "description": "postgres 1.3"
+    },
+    "config": {
+      "diskSize": {
+        "value": "5Gi",
+        "userOverride": true
+      },
+      "cpu": {
+        "value": "500m",
+        "userOverride": true
+      },
+      "ram": {
+        "value": "512Mi",
+        "userOverride": false        
+      },
+      "replicas": {
+        "value": 1,
+        "userOverride": true
+      }
+  }      
+  },
+  "db-medium": {    
+    "description": "Medium pg db",
+    "free": true,      
+    "displayName": "DB-Medium",
+    "maintenance_info": {
+      "version": "0",
+      "description": "postgres 1.3"
+    },
+    "config": {
+        "diskSize": {
+          "value": "10Gi",
+          "userOverride": true
+        },
+        "cpu": {
+          "value": "800m",
+          "userOverride": true
+        },
+        "ram": {
+          "value": "1Gi",
+          "userOverride": false        
+        },
+        "replicas": {
+          "value": 2,
+          "userOverride": true
+        }
+    }      
+  }
+}

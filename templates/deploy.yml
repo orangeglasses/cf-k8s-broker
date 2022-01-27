@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-db
+  namespace: tsmgr-{{.InstanceID}}
+  labels:
+    plan: {{ .Plan.Name }}
+    org: {{ .OrgID }}
+    space: {{ .SpaceID }}
+    deleteOnUnprovision: "true"
+spec:
+  replicas: {{ .Plan.Config.replicas.Value }}
+  selector:
+    matchLabels:
+      app: lala
+  template:
+    metadata:
+      labels:
+        app: lala
+    spec:
+      containers:
+      - name: alpine
+        image: alpine:latest
+        ports:
+        - containerPort: 80

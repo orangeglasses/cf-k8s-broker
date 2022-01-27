@@ -1,0 +1,13 @@
+---
+
+applications:
+- name: cf-storagegrid-broker   
+  stack: cflinuxfs3
+  routes:
+  - route: ((route))
+  processes:
+  - type: web
+    instances: ((instances))
+    memory: 32M
+    disk_quota: 32M
+    health-check-type: port

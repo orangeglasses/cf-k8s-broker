@@ -1,0 +1,1 @@
+curl 'http://broker:broker@localhost:3000/v2/service_instances/90349a10-7309-4ddc-999b-ef7d851c55c0/service_bindings/c63606aa-54d4-4037-93e8-56da7000ba5e&accepts_incomplete=true' -X DELETE -H "X-Broker-API-Version: 2.16"

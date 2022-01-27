@@ -1,0 +1,25 @@
+---
+
+applications:
+- name: cf-storagegrid-broker
+  env:
+    BROKER_USERNAME: broker
+    BROKER_PASSWORD: setbrokerpasswordhere
+    STORAGEGRID_TENANT_USERNAME: root
+    STORAGEGRID_TENANT_PASSWORD:
+    STORAGEGRID_ADMIN_URL:
+    STORAGEGRID_SKIP_SSL_CHECK: false
+    STORAGEGRID_ACCOUNT_ID: "accountidhere keep the quotes"
+    S3_ENDPOINT: https://gateway node ip:8082
+    S3_REGION:
+    DOCSURL: https://mydocurl/docs
+ 
+  stack: cflinuxfs3
+  routes:
+  - route: cf-storagegrid-broker.example.internal
+  processes:
+  - type: web
+    instances: 2
+    memory: 32M
+    disk_quota: 32M
+    health-check-type: port

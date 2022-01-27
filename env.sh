@@ -1,0 +1,5 @@
+export BROKER_USERNAME="broker"
+export BROKER_PASSWORD="broker"
+export SERVICE_GUID="3c318f49-9fa1-4a40-a1d6-10a10509ef54"
+export SERVICE_PLANS_MAPPING="db-small:9ffb5654-b0ff-4215-8519-70daf5e79b0f,db-medium:57da5e5e-107f-4ac2-a751-82c16bb755c3"
+export DOCSURL="http://localhost"

@@ -8,7 +8,7 @@ type PlanConfigElement struct {
 type PlanConfig map[string]PlanConfigElement
 
 type Plan struct {
-	ID              string `json:"id,omitempty"`
+	ID              string `json:"id"`
 	Name            string
 	DisplayName     string `json:"displayName"`
 	Description     string `json:"description"`

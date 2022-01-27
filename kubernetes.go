@@ -74,6 +74,12 @@ func NewK8sClient(kubeconfig, templPath string) *k8sclient {
 
 	//////   Load yaml templates    //////
 	glob := templPath + "/*.yml"
+	funcMap := template.FuncMap{
+		"GetObjectByLabel": klient.GetObjectByLabel,
+		"GetObjectByName":  klient.GetObjectByName,
+		"base64decode":     base64decode,
+	}
+
 	templFiles, err := filepath.Glob(glob)
 	if err != nil {
 		log.Fatal(err)
@@ -85,7 +91,7 @@ func NewK8sClient(kubeconfig, templPath string) *k8sclient {
 		log.Fatalf("No template files found in path: %s", templPath)
 	}
 
-	templates, err := template.ParseGlob(glob)
+	templates, err := template.New("").Funcs(funcMap).ParseGlob(glob)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -95,11 +101,7 @@ func NewK8sClient(kubeconfig, templPath string) *k8sclient {
 	///////////////////////////
 
 	////// Load bind template ///////
-	bindTemplate, err := template.New("bindTemplate.json").Funcs(template.FuncMap{
-		"GetObjectByLabel": klient.GetObjectByLabel,
-		"GetObjectByName":  klient.GetObjectByName,
-		"base64decode":     base64decode,
-	}).ParseFiles("bindTemplate.json")
+	bindTemplate, err := template.New("bindTemplate.json").Funcs(funcMap).ParseFiles("bindTemplate.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -309,6 +311,10 @@ func (k *k8sclient) GetObjectByLabel(namespace, kind, label, labelValue string) 
 
 	if err != nil {
 		log.Println("err", err)
+		return nil
+	}
+
+	if len(list.Items) == 0 {
 		return nil
 	}
 

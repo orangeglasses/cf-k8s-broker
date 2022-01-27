@@ -153,6 +153,9 @@ func (b *broker) Update(ctx context.Context, instanceID string, details domain.U
 		return domain.UpdateServiceSpec{}, apiresponses.ErrPlanChangeNotSupported
 	}
 
+	//TODO: we won't get the original rawParams here so if those were used we cannot update!
+	//Possible fix: store user config in label or annotation and retrieve before rendering templates
+
 	//get plan name from plan ID
 	planName := b.env.PlansRevGUIDMap[details.PlanID]
 

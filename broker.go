@@ -106,19 +106,14 @@ func (b *broker) Deprovision(ctx context.Context, instanceID string, details dom
 	planName := b.env.PlansRevGUIDMap[details.PlanID]
 	renderedYaml, err := b.klient.RenderTemplatesForPlan(ctx, b.plans[planName], "", "", instanceID)
 	if err != nil {
-		if details.Force {
-			return domain.DeprovisionServiceSpec{}, nil
-		}
-		return domain.DeprovisionServiceSpec{}, fmt.Errorf("Error rendering YAML templates: %s", err)
+		b.logger.Error("Error rendering YAML templates for deprovision: ", err)
+
+		return domain.DeprovisionServiceSpec{}, nil
 	}
 
 	for _, ry := range renderedYaml {
 		if err := b.klient.DeleteFromYaml(ctx, ry, instanceID, details.Force); err != nil {
-			if details.Force {
-				b.logger.Error("Error deleting from YAML:", err)
-			}
-
-			return domain.DeprovisionServiceSpec{}, err
+			b.logger.Error("Error deleting from YAML:", err)
 		}
 	}
 

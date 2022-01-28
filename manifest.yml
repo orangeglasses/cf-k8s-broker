@@ -1,7 +1,7 @@
 ---
 
 applications:
-- name: cf-storagegrid-broker   
+- name: ((appname))   
   stack: cflinuxfs3
   routes:
   - route: ((route))
@@ -9,5 +9,8 @@ applications:
   - type: web
     instances: ((instances))
     memory: 32M
-    disk_quota: 32M
+    disk_quota: 500M 
     health-check-type: port
+  env:
+    GOVERSION: 1.17
+ 

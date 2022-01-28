@@ -26,7 +26,7 @@ func CatalogLoad(config brokerConfig, plans Plans) ([]domain.Service, error) {
 		DisplayName:         config.ServiceName,
 		ImageUrl:            "", //todo: put image here
 		LongDescription:     config.ServiceDescription,
-		ProviderDisplayName: "Postgres",
+		ProviderDisplayName: "",
 		DocumentationUrl:    config.DocsURL,
 		SupportUrl:          "",
 		Shareable:           &boolTrue,

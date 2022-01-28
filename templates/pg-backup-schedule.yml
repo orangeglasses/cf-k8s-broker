@@ -2,6 +2,7 @@ apiVersion: sql.tanzu.vmware.com/v1
 kind: PostgresBackupSchedule
 metadata:
   name: pg-backup-schedule
+  namespace: tsmgr-{{.InstanceID}}
   labels:
     plan: {{ .Plan.Name }}
     org: {{ .OrgID }}

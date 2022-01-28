@@ -3,6 +3,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: dns-nwp
+  namespace: tsmgr-{{.InstanceID}}
   labels:
     plan: {{ .Plan.Name }}
     org: {{ .OrgID }}

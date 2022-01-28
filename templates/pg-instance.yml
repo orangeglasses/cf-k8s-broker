@@ -1,16 +1,22 @@
 {{- $nsname := printf "tsmgr-%s" .InstanceID -}}
-{{- $instanceName := .Plan.GetConfigValue "pginstancename" -}}
-{{- $existingPg := GetObjectByName $nsname "sql.tanzu.vmware.comi/v1" "Postgres" $instanceName -}}
+{{- $pginstancename := .Plan.GetConfigValue "pginstancename" -}}
+{{- $existingPg := GetObjectByName $nsname "postgres.sql.tanzu.vmware.com" $pginstancename -}}
 apiVersion: sql.tanzu.vmware.com/v1
 kind: Postgres
 metadata:
-  name: {{ .Plan.GetConfigValue "pginstancename" }
+  name: {{ .Plan.GetConfigValue "pginstancename" }}
+  namespace: tsmgr-{{.InstanceID}}
+  labels:
+    plan: {{ .Plan.Name }}
+    org: {{ .OrgID }}
+    space: {{ .SpaceID }}
+    deleteOnUnprovision: "true"
 spec:
   memory: {{ .Plan.GetConfigValue "ram" }}
-  cpu: {{ .Values.cpu }} 
+  cpu: {{ .Plan.GetConfigValue "cpu" }} 
   storageClassName: {{ .Plan.GetConfigValue "storageClass" }}
   storageSize: {{ .Plan.GetConfigValue "diskSize" }}
-{{ if ($existingPg) }
+{{ if ($existingPg) }}
   monitorStorageClassName: {{ index $existingPg.Object "spec" "monitorStorageClassName" }}
 {{ else }} 
   monitorStorageClassName: {{ .Plan.GetConfigValue "storageClass" }}
@@ -28,6 +34,6 @@ spec:
     username: pgadmin
   serviceType: LoadBalancer
   highAvailability:
-    enabled: {{  }}
+    enabled: {{ .Plan.GetConfigValue "ha" }}
   backupLocation:
     name: pg-backup-location

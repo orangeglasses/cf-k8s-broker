@@ -3,6 +3,7 @@ apiVersion: sql.tanzu.vmware.com/v1
 kind: PostgresBackupLocation
 metadata:
   name: pg-backup-location
+  namespace: tsmgr-{{.InstanceID}}
   labels:
     plan: {{ .Plan.Name }}
     org: {{ .OrgID }}

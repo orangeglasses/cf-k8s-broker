@@ -224,7 +224,7 @@ func (b *broker) LastOperation(ctx context.Context, instanceID string, details d
 			if err != nil {
 				b.logger.Debug("LastOperation: deploy error: " + err.Error())
 				return brokerapi.LastOperation{
-					State:       "failure",
+					State:       domain.Failed,
 					Description: err.Error(),
 				}, nil
 			}
@@ -232,7 +232,7 @@ func (b *broker) LastOperation(ctx context.Context, instanceID string, details d
 			if !ok {
 				b.logger.Debug("LastOperation: deploy still running")
 				return brokerapi.LastOperation{
-					State:       "running",
+					State:       domain.InProgress,
 					Description: "",
 				}, nil
 			}
@@ -240,7 +240,7 @@ func (b *broker) LastOperation(ctx context.Context, instanceID string, details d
 	}
 
 	return brokerapi.LastOperation{
-		State:       "success",
+		State:       domain.Succeeded,
 		Description: "",
 	}, nil
 }

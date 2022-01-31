@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "../cf-k8s-broker"
+		},
+		{
+			"path": "../cf-ontapsmb-broker"
 		}
 	],
 	"settings": {}

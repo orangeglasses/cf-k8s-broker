@@ -399,7 +399,7 @@ func (k *k8sclient) DeleteFromYaml(ctx context.Context, yamlIn, instanceID strin
 
 	//For objects that are not being deleted during unprovision, set the "deletedDate" label. This makes cleanup process easier
 	if !deleteThisObject {
-		log.Printf("Skipping object deletion for object: %s because label \"deleteOnUnprovision\" is \"true\"", obj.GetName())
+		log.Printf("Skipping object deletion for object: %s because label \"deleteOnUnprovision\" is \"false\"", obj.GetName())
 
 		labels["deletedDate"] = time.Now().Format("02-01-2006")
 		obj.SetLabels(labels)

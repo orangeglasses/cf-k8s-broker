@@ -215,12 +215,14 @@ func (b *broker) LastOperation(ctx context.Context, instanceID string, details d
 	for _, ry := range renderedYaml {
 		obj, err := b.klient.GetObject(ctx, instanceID, ry)
 		if err != nil {
+			b.logger.Debug("LastOperation: could not get object: " + err.Error())
 			return brokerapi.LastOperation{}, err
 		}
 
 		wait, ok, err := b.klient.GetObjectStatus(obj)
 		if wait {
 			if err != nil {
+				b.logger.Debug("LastOperation: deploy error: " + err.Error())
 				return brokerapi.LastOperation{
 					State:       "failure",
 					Description: err.Error(),
@@ -228,6 +230,7 @@ func (b *broker) LastOperation(ctx context.Context, instanceID string, details d
 			}
 
 			if !ok {
+				b.logger.Debug("LastOperation: deploy still running")
 				return brokerapi.LastOperation{
 					State:       "running",
 					Description: "",

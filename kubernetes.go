@@ -401,7 +401,7 @@ func (k *k8sclient) DeleteFromYaml(ctx context.Context, yamlIn, instanceID strin
 	if !deleteThisObject {
 		log.Printf("Skipping object deletion for object: %s because label \"deleteOnUnprovision\" is \"false\"", obj.GetName())
 
-		labels["deletedDate"] = time.Now().Format("02-01-2006")
+		labels["deletedDate"] = fmt.Sprintf("%v", time.Now().Unix())
 		obj.SetLabels(labels)
 
 		_, err := k.dynClient.Resource(mapping.Resource).Namespace(obj.GetNamespace()).Update(ctx, obj, metav1.UpdateOptions{})

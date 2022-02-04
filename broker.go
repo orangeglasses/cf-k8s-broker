@@ -24,13 +24,7 @@ func (b *broker) Services(ctx context.Context) ([]domain.Service, error) {
 	return b.services, nil
 }
 
-func processUserParams(rawParams json.RawMessage, plan *Plan) error {
-	var params map[string]interface{}
-	err := json.Unmarshal(rawParams, &params)
-	if err != nil {
-		return apiresponses.ErrRawParamsInvalid
-	}
-
+func processUserParams(params map[string]interface{}, plan *Plan) error {
 	for paramName, param := range params {
 		planConfig, ok := plan.Config[paramName]
 		if !ok {
@@ -43,7 +37,6 @@ func processUserParams(rawParams json.RawMessage, plan *Plan) error {
 
 		planConfig.Value = param
 		plan.Config[paramName] = planConfig
-
 	}
 
 	return nil
@@ -61,8 +54,13 @@ func (b *broker) Provision(ctx context.Context, instanceID string, details domai
 	plan := b.plans[planName]
 
 	//Process user params
+	params := make(map[string]interface{})
 	if details.RawParameters != nil && len(details.RawParameters) > 0 {
-		err := processUserParams(details.RawParameters, &plan)
+		err := json.Unmarshal(details.RawParameters, &params)
+		if err != nil {
+			return domain.ProvisionedServiceSpec{}, apiresponses.ErrRawParamsInvalid
+		}
+		err = processUserParams(params, &plan)
 		if err != nil {
 			return domain.ProvisionedServiceSpec{}, err
 		}
@@ -84,10 +82,17 @@ func (b *broker) Provision(ctx context.Context, instanceID string, details domai
 			}
 
 			return domain.ProvisionedServiceSpec{}, err
-
 		}
 
 		applied = append(applied, ry)
+	}
+
+	if len(params) > 0 {
+		fmt.Println(params)
+		err = b.klient.StoreUserParams(ctx, instanceID, params)
+		if err != nil {
+			return domain.ProvisionedServiceSpec{}, fmt.Errorf("Unable to store user params: %s", err)
+		}
 	}
 
 	return domain.ProvisionedServiceSpec{
@@ -116,6 +121,8 @@ func (b *broker) Deprovision(ctx context.Context, instanceID string, details dom
 			b.logger.Error("Error deleting from YAML:", err)
 		}
 	}
+
+	b.klient.DeleteStoredUserParams(ctx, instanceID)
 
 	return domain.DeprovisionServiceSpec{}, nil
 }
@@ -151,18 +158,38 @@ func (b *broker) Update(ctx context.Context, instanceID string, details domain.U
 		return domain.UpdateServiceSpec{}, apiresponses.ErrPlanChangeNotSupported
 	}
 
-	//TODO: we won't get the original rawParams here so if those were used we cannot update!
-	//Possible fix: store user config in label or annotation and retrieve before rendering templates
-
 	//get plan name from plan ID
 	planName := b.env.PlansRevGUIDMap[details.PlanID]
 
 	//get plan
 	plan := b.plans[planName]
 
-	//Process user params
+	//get previous params
+	previousParams := b.klient.GetPreviousUserParams(ctx, instanceID)
+
+	//marshal the incoming params
+	var newParams map[string]interface{}
 	if details.RawParameters != nil && len(details.RawParameters) > 0 {
-		err := processUserParams(details.RawParameters, &plan)
+		err := json.Unmarshal(details.RawParameters, &newParams)
+		if err != nil {
+			return domain.UpdateServiceSpec{}, apiresponses.ErrRawParamsInvalid
+		}
+
+		//And the merge them with previous params
+		for newKey, newParam := range newParams {
+			previousParams[newKey] = newParam
+		}
+	}
+
+	//Process user params for update
+	err := processUserParams(previousParams, &plan)
+	if err != nil {
+		return domain.UpdateServiceSpec{}, err
+	}
+
+	//store the used params before applying so we can choose not to do the update when storing the params fails
+	if len(previousParams) > 0 {
+		err = b.klient.StoreUserParams(ctx, instanceID, previousParams)
 		if err != nil {
 			return domain.UpdateServiceSpec{}, err
 		}
@@ -188,12 +215,6 @@ func (b *broker) Update(ctx context.Context, instanceID string, details domain.U
 }
 
 func (b *broker) LastOperation(ctx context.Context, instanceID string, details domain.PollDetails) (brokerapi.LastOperation, error) {
-	/* statuses:
-	"success"
-	"running"
-	"failure"
-	*/
-
 	//Check timeout
 	startedTime, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", details.OperationData)
 	if startedTime.Add(time.Minute * 60).Before(time.Now().UTC()) {

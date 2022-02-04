@@ -1,5 +1,6 @@
 { 
   "db-small": {    
+    "id": "3c318f49-9fa1-4a40-a1d6-10a10509ef54-db-small",
     "description": "Small pg db",
     "free": true,      
     "displayName": "DB-Small",
@@ -18,7 +19,7 @@
       },
       "ram": {
         "value": "512Mi",
-        "userOverride": false        
+        "userOverride": true        
       },
       "replicas": {
         "value": 1,
@@ -27,6 +28,7 @@
   }      
   },
   "db-medium": {    
+    "id": "3c318f49-9fa1-4a40-a1d6-10a10509ef54-db-medium",
     "description": "Medium pg db",
     "free": true,      
     "displayName": "DB-Medium",

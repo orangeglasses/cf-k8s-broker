@@ -267,6 +267,9 @@ func (k *k8sclient) UpdateFromYaml(ctx context.Context, yamlIn, instanceID strin
 	}
 
 	currentObj, err := k.dynClient.Resource(mapping.Resource).Namespace(obj.GetNamespace()).Get(ctx, obj.GetName(), metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
 
 	currentLabels := currentObj.GetLabels()
 	newLabels := obj.GetLabels()

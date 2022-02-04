@@ -274,9 +274,7 @@ func (k *k8sclient) UpdateFromYaml(ctx context.Context, yamlIn, instanceID strin
 	currentLabels := currentObj.GetLabels()
 	newLabels := obj.GetLabels()
 	for key, label := range newLabels {
-		if label != "dummyvalue" {
-			currentLabels[key] = label
-		}
+		currentLabels[key] = label
 	}
 	obj.SetLabels(currentLabels)
 

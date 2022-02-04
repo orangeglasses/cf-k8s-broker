@@ -278,8 +278,9 @@ func (k *k8sclient) UpdateFromYaml(ctx context.Context, yamlIn, instanceID strin
 			currentLabels[key] = label
 		}
 	}
-
 	obj.SetLabels(currentLabels)
+
+	obj.SetResourceVersion(currentObj.GetResourceVersion())
 
 	_, err = k.dynClient.Resource(mapping.Resource).Namespace(obj.GetNamespace()).Update(ctx, obj, metav1.UpdateOptions{})
 

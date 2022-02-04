@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"code.cloudfoundry.org/lager"
@@ -202,8 +203,17 @@ func (b *broker) Update(ctx context.Context, instanceID string, details domain.U
 
 	for _, ry := range renderedYaml {
 		if err := b.klient.UpdateFromYaml(ctx, ry, instanceID); err != nil {
-			b.logger.Error("Error applying YAML", err)
-			return domain.UpdateServiceSpec{}, err
+			if strings.Contains(err.Error(), "not found") {
+				err = b.klient.CreateFromYaml(ctx, ry, instanceID)
+				if err != nil {
+					b.logger.Error("Error Creating new object", err)
+					return domain.UpdateServiceSpec{}, err
+				}
+			} else {
+
+				b.logger.Error("Error applying YAML", err)
+				return domain.UpdateServiceSpec{}, err
+			}
 		}
 	}
 

@@ -1,13 +1,25 @@
 package main
 
 import (
+	"encoding/base64"
+	"fmt"
+	"io/ioutil"
+
 	"github.com/google/uuid"
-	"github.com/pivotal-cf/brokerapi"
 	"github.com/pivotal-cf/brokerapi/domain"
 )
 
+func LoadCatalogImage() string {
+	inBuf, err := ioutil.ReadFile("logo.png")
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("data:image/png;base64,%v", base64.StdEncoding.EncodeToString(inBuf))
+}
+
 func CatalogLoad(config brokerConfig, plans Plans) ([]domain.Service, error) {
-	var service brokerapi.Service
+	var service domain.Service
 	boolTrue := true
 
 	serviceGUID := config.ServiceGUID
@@ -24,7 +36,7 @@ func CatalogLoad(config brokerConfig, plans Plans) ([]domain.Service, error) {
 	service.PlanUpdatable = true
 	service.Metadata = &domain.ServiceMetadata{
 		DisplayName:         config.ServiceName,
-		ImageUrl:            "", //todo: put image here
+		ImageUrl:            LoadCatalogImage(),
 		LongDescription:     config.ServiceDescription,
 		ProviderDisplayName: "",
 		DocumentationUrl:    config.DocsURL,

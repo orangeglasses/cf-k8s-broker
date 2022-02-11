@@ -196,7 +196,7 @@ func (b *broker) Update(ctx context.Context, instanceID string, details domain.U
 		}
 	}
 
-	renderedYaml, err := b.klient.RenderTemplatesForPlan(ctx, plan, "dummyvalue", "dummyvalue", instanceID)
+	renderedYaml, err := b.klient.RenderTemplatesForPlan(ctx, plan, details.PreviousValues.OrgID, details.PreviousValues.SpaceID, instanceID)
 	if err != nil {
 		return domain.UpdateServiceSpec{}, fmt.Errorf("Error rendering YAML templates: %s", err)
 	}

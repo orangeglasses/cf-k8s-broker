@@ -11,7 +11,7 @@ import (
 type brokerConfig struct {
 	BrokerUsername       string   `envconfig:"broker_username" required:"true"`
 	BrokerPassword       string   `envconfig:"broker_password" required:"true"`
-	ServiceGUID          string   `envconfig:"service_guid" required:"false"`
+	ServiceGUID          string   `envconfig:"service_guid" required:"true"`
 	ServiceName          string   `envconfig:"service_name" required:"true"`
 	ServiceDescription   string   `envconfig:"service_desc" default:"A service on K8s"`
 	ServiceTags          []string `envconfig:"service_tags" rquired:"false"`

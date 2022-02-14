@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/google/uuid"
 	"github.com/pivotal-cf/brokerapi/domain"
 )
 
@@ -22,11 +21,7 @@ func CatalogLoad(config brokerConfig, plans Plans) ([]domain.Service, error) {
 	var service domain.Service
 	boolTrue := true
 
-	serviceGUID := config.ServiceGUID
-	if serviceGUID == "" {
-		serviceGUID = uuid.NewString()
-	}
-	service.ID = serviceGUID
+	service.ID = config.ServiceGUID
 	service.Name = config.ServiceName
 	service.Description = config.ServiceDescription
 	service.Bindable = true

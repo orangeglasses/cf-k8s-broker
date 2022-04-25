@@ -5,12 +5,11 @@ applications:
   stack: cflinuxfs3
   routes:
   - route: ((route))
-  processes:
-  - type: web
-    instances: ((instances))
-    memory: 32M
-    disk_quota: 500M 
-    health-check-type: port
+  instances: ((instances))
+  memory: 32M
+  disk_quota: 500M 
+  health-check-type: port
+  buildpacks:
+  - go_buildpack
   env:
     GOVERSION: 1.17
- 

@@ -358,6 +358,10 @@ func (k *k8sclient) GetObjectStatus(obj *unstructured.Unstructured) (bool, bool,
 	}
 
 	if obj.GetObjectKind().GroupVersionKind().String() == "sql.tanzu.vmware.com/v1, Kind=Postgres" {
+		if obj.Object["status"] == nil {
+			return true, false, nil
+		}
+
 		currentState := obj.Object["status"].(map[string]interface{})["currentState"]
 		if currentState == "Running" {
 			return true, true, nil

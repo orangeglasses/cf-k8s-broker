@@ -230,7 +230,7 @@ func (b *broker) LastOperation(ctx context.Context, instanceID string, details d
 	if startedTime.Add(time.Minute * 60).Before(time.Now().UTC()) {
 		//timeout expired
 		return brokerapi.LastOperation{
-			State:       "failure",
+			State:       domain.Failed,
 			Description: "Timeout (60 minutes) expired",
 		}, fmt.Errorf("Deployment timed out")
 	}

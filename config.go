@@ -4,25 +4,27 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 
 	"github.com/kelseyhightower/envconfig"
 )
 
 type brokerConfig struct {
-	BrokerUsername       string   `envconfig:"broker_username" required:"true"`
-	BrokerPassword       string   `envconfig:"broker_password" required:"true"`
-	ServiceGUID          string   `envconfig:"service_guid" required:"true"`
-	ServiceName          string   `envconfig:"service_name" required:"true"`
-	ServiceDescription   string   `envconfig:"service_desc" default:"A service on K8s"`
-	ServiceTags          []string `envconfig:"service_tags" rquired:"false"`
-	PlansPath            string   `envconfig:"service_plans_path" default:"plans.json"`
-	PlansRevGUIDMap      map[string]string
-	PlanChangeSSupported bool   `envconfig:"plan_change_supported" default:"false"`
-	TemplatesPath        string `envconfig:"templates_path" default:"templates"`
-	KubeconfigPath       string `envconfig:"kubeconfig_path" default:""`
-	LogLevel             string `envconfig:"log_level" default:"INFO"`
-	Port                 string `envconfig:"port" default:"3000"`
-	DocsURL              string `envconfig:"docsurl" default:"default"`
+	BrokerUsername         string   `envconfig:"broker_username" required:"true"`
+	BrokerPassword         string   `envconfig:"broker_password" required:"true"`
+	ServiceGUID            string   `envconfig:"service_guid" required:"true"`
+	ServiceName            string   `envconfig:"service_name" required:"true"`
+	ServiceDescription     string   `envconfig:"service_desc" default:"A service on K8s"`
+	ServiceDescriptionFile string   `envconfig:"service_desc_file" required:"false"`
+	ServiceTags            []string `envconfig:"service_tags" rquired:"false"`
+	PlansPath              string   `envconfig:"service_plans_path" default:"plans.json"`
+	PlansRevGUIDMap        map[string]string
+	PlanChangeSSupported   bool   `envconfig:"plan_change_supported" default:"false"`
+	TemplatesPath          string `envconfig:"templates_path" default:"templates"`
+	KubeconfigPath         string `envconfig:"kubeconfig_path" default:""`
+	LogLevel               string `envconfig:"log_level" default:"INFO"`
+	Port                   string `envconfig:"port" default:"3000"`
+	DocsURL                string `envconfig:"docsurl" default:"default"`
 }
 
 func brokerConfigLoad() (brokerConfig, Plans, error) {
@@ -33,6 +35,15 @@ func brokerConfigLoad() (brokerConfig, Plans, error) {
 	err := envconfig.Process("", &config)
 	if err != nil {
 		return brokerConfig{}, nil, err
+	}
+
+	if config.ServiceDescriptionFile != "" {
+		log.Println("SERVICE_DESC_FILE is set. Loading service description from file and overriding service_desc.")
+		descBytes, err := ioutil.ReadFile(config.ServiceDescriptionFile)
+		if err != nil {
+			return brokerConfig{}, nil, err
+		}
+		config.ServiceDescription = string(descBytes)
 	}
 
 	inBuf, err := ioutil.ReadFile(config.PlansPath)

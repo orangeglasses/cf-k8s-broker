@@ -363,6 +363,7 @@ func (k *k8sclient) GetObjectStatus(obj *unstructured.Unstructured) (bool, bool,
 		}
 
 		currentState := obj.Object["status"].(map[string]interface{})["currentState"]
+		//TODO: add debug logging here.
 		if currentState == "Running" {
 			return true, true, nil
 		} else {

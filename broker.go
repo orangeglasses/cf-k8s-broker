@@ -178,7 +178,12 @@ func (b *broker) Update(ctx context.Context, instanceID string, details domain.U
 
 		//And the merge them with previous params
 		for newKey, newParam := range newParams {
-			previousParams[newKey] = newParam
+			if newParam != nil {
+				if newParamString, ok := newParam.(string); ok && newParamString != "" {
+					previousParams[newKey] = newParam
+				}
+			}
+
 		}
 	}
 

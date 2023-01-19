@@ -2,8 +2,8 @@
 {{- $nsname := $namespace.GetName -}}
 {{- $instance := GetObjectByLabel $nsname "postgres.sql.tanzu.vmware.com" "instanceID" .InstanceID -}}
 {{- $instanceName := $instance.GetName -}}
-{{- $planName := index $instance.Object, "metadata", "labels", "plan" -}}
-{{- $stanzaName := index $instance.Object, "status", "stanzaName" -}}
+{{- $planName := index $instance.Object "metadata" "labels" "plan" -}}
+{{- $stanzaName := index $instance.Object "status" "stanzaName" -}}
 {
     "planid": "{{$planName}}",
     "dashboardurl": "",

@@ -105,7 +105,23 @@ func (b *broker) Provision(ctx context.Context, instanceID string, details domai
 }
 
 func (b *broker) GetInstance(ctx context.Context, instanceID string) (domain.GetInstanceDetailsSpec, error) {
-	return domain.GetInstanceDetailsSpec{}, fmt.Errorf("Instances are not retrievable")
+	if b.klient.getInstanceTemplate == nil {
+		return domain.GetInstanceDetailsSpec{}, fmt.Errorf("Instance retrieval not configured")
+	}
+
+	templ, err := b.klient.RenderGetInstanceTemplate(ctx, instanceID)
+	if err != nil {
+		b.logger.Error("unable to render getInstance template: ", err)
+		return domain.GetInstanceDetailsSpec{}, fmt.Errorf("Unable to render getInstance template: %s", err)
+	}
+
+	return domain.GetInstanceDetailsSpec{
+		ServiceID:    b.env.ServiceGUID,
+		PlanID:       templ["planid"].(string),
+		DashboardURL: templ["dashboardurl"].(string),
+		Parameters:   templ["parameters"],
+	}, nil
+
 }
 
 func (b *broker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {

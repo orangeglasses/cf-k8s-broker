@@ -26,7 +26,7 @@ func CatalogLoad(config brokerConfig, plans Plans) ([]domain.Service, error) {
 	service.Description = config.ServiceDescription
 	service.Bindable = true
 	service.BindingsRetrievable = false
-	service.InstancesRetrievable = false
+	service.InstancesRetrievable = true
 	service.Tags = config.ServiceTags
 	service.PlanUpdatable = true
 	service.Metadata = &domain.ServiceMetadata{

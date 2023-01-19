@@ -27,12 +27,13 @@ import (
 )
 
 type k8sclient struct {
-	dynClient     dynamic.Interface
-	restMapper    *restmapper.DeferredDiscoveryRESTMapper
-	clientSet     *kubernetes.Clientset
-	templateFiles []string
-	templates     *template.Template
-	bindTemplate  *template.Template
+	dynClient           dynamic.Interface
+	restMapper          *restmapper.DeferredDiscoveryRESTMapper
+	clientSet           *kubernetes.Clientset
+	templateFiles       []string
+	templates           *template.Template
+	bindTemplate        *template.Template
+	getInstanceTemplate *template.Template
 }
 
 type masterPortIpProtocol struct {
@@ -106,7 +107,16 @@ func NewK8sClient(kubeconfig, templPath string) *k8sclient {
 		log.Fatal(err)
 	}
 	klient.bindTemplate = bindTemplate
+	//////////////////////////////////
 
+	////// Load getInstance template ///////
+	getInstanceTemplate, err := template.New("getInstanceTemplate.json").Funcs(funcMap).ParseFiles("getInstanceTemplate.json")
+	if err != nil {
+		log.Println("Unable to load getInstanceTemplate.json")
+		klient.getInstanceTemplate = nil
+	} else {
+		klient.getInstanceTemplate = getInstanceTemplate
+	}
 	//////////////////////////////////
 
 	return &klient
@@ -143,7 +153,7 @@ func (k *k8sclient) RenderTemplatesForPlan(ctx context.Context, plan Plan, orgID
 	return output, nil
 }
 
-func (k *k8sclient) RenderBindTemplate(ctx context.Context, instanceID string) (map[string]string, error) {
+func (k *k8sclient) RenderJsonTemplate(ctx context.Context, templ *template.Template, instanceID string) (*bytes.Buffer, error) {
 	data := struct {
 		InstanceID string
 	}{
@@ -152,7 +162,16 @@ func (k *k8sclient) RenderBindTemplate(ctx context.Context, instanceID string) (
 
 	rendered := new(bytes.Buffer)
 
-	err := k.bindTemplate.Execute(rendered, data)
+	err := templ.Execute(rendered, data)
+	if err != nil {
+		return nil, err
+	}
+
+	return rendered, nil
+}
+
+func (k *k8sclient) RenderBindTemplate(ctx context.Context, instanceID string) (map[string]string, error) {
+	rendered, err := k.RenderJsonTemplate(ctx, k.bindTemplate, instanceID)
 	if err != nil {
 		return nil, err
 	}
@@ -164,6 +183,22 @@ func (k *k8sclient) RenderBindTemplate(ctx context.Context, instanceID string) (
 	}
 
 	return creds, nil
+
+}
+
+func (k *k8sclient) RenderGetInstanceTemplate(ctx context.Context, instanceID string) (map[string]interface{}, error) {
+	rendered, err := k.RenderJsonTemplate(ctx, k.getInstanceTemplate, instanceID)
+	if err != nil {
+		return nil, err
+	}
+
+	var instanceDetails map[string]interface{}
+	err = json.Unmarshal(rendered.Bytes(), &instanceDetails)
+	if err != nil {
+		return nil, err
+	}
+
+	return instanceDetails, nil
 
 }
 

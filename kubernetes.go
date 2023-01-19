@@ -112,7 +112,7 @@ func NewK8sClient(kubeconfig, templPath string) *k8sclient {
 	////// Load getInstance template ///////
 	getInstanceTemplate, err := template.New("getInstanceTemplate.json").Funcs(funcMap).ParseFiles("getInstanceTemplate.json")
 	if err != nil {
-		log.Println("Unable to load getInstanceTemplate.json")
+		log.Println("Unable to load getInstanceTemplate.json", err)
 		klient.getInstanceTemplate = nil
 	} else {
 		klient.getInstanceTemplate = getInstanceTemplate

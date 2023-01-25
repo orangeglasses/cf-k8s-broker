@@ -23,7 +23,9 @@ type Plan struct {
 type Plans map[string]Plan
 
 func (p Plan) GetConfigValue(configName string) interface{} {
-	value := p.Config[configName].Value
+	if ce, ok := p.Config[configName]; ok {
+		return ce.Value
+	}
 
-	return value
+	return nil
 }

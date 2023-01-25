@@ -147,7 +147,10 @@ func (k *k8sclient) RenderTemplatesForPlan(ctx context.Context, plan Plan, orgID
 		if err != nil {
 			return nil, err
 		}
-		output = append(output, rendered.String())
+
+		if len(rendered.String()) > 15 { //less than 15 characters can never be a valid k8s yaml so don't include it.
+			output = append(output, rendered.String())
+		}
 	}
 
 	return output, nil

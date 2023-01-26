@@ -25,10 +25,10 @@ func (b *broker) Services(ctx context.Context) ([]domain.Service, error) {
 	return b.services, nil
 }
 
-func processUserParams(params map[string]interface{}, plan *Plan) error {
+func processUserParams(params map[string]interface{}, plan *Plan, ignoreMissing bool) error {
 	for paramName, param := range params {
 		planConfig, ok := plan.Config[paramName]
-		if !ok {
+		if !ok && !ignoreMissing {
 			return apiresponses.ErrRawParamsInvalid
 		}
 
@@ -61,7 +61,7 @@ func (b *broker) Provision(ctx context.Context, instanceID string, details domai
 		if err != nil {
 			return domain.ProvisionedServiceSpec{}, apiresponses.ErrRawParamsInvalid
 		}
-		err = processUserParams(params, &plan)
+		err = processUserParams(params, &plan, false)
 		if err != nil {
 			return domain.ProvisionedServiceSpec{}, err
 		}
@@ -204,7 +204,8 @@ func (b *broker) Update(ctx context.Context, instanceID string, details domain.U
 	}
 
 	//Process user params for update
-	err := processUserParams(previousParams, &plan)
+	ignoreMissing := (details.PlanID != details.PreviousValues.PlanID) //if changing plans then it's fine to have parameters stored that are not in the plans.json
+	err := processUserParams(previousParams, &plan, ignoreMissing)
 	if err != nil {
 		return domain.UpdateServiceSpec{}, err
 	}

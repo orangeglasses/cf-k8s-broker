@@ -28,7 +28,11 @@ func (b *broker) Services(ctx context.Context) ([]domain.Service, error) {
 func processUserParams(params map[string]interface{}, plan *Plan, ignoreMissing bool) error {
 	for paramName, param := range params {
 		planConfig, ok := plan.Config[paramName]
-		if !ok && !ignoreMissing {
+		if !ok {
+			if ignoreMissing {
+				continue
+			}
+
 			return apiresponses.ErrRawParamsInvalid
 		}
 

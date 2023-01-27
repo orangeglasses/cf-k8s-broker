@@ -25,11 +25,11 @@ func (b *broker) Services(ctx context.Context) ([]domain.Service, error) {
 	return b.services, nil
 }
 
-func processUserParams(params map[string]interface{}, plan *Plan, ignoreMissing bool) error {
+func processUserParams(params map[string]interface{}, plan *Plan, ignoreUnknown bool) error {
 	for paramName, param := range params {
 		planConfig, ok := plan.Config[paramName]
 		if !ok {
-			if ignoreMissing {
+			if ignoreUnknown {
 				continue
 			}
 
@@ -42,6 +42,12 @@ func processUserParams(params map[string]interface{}, plan *Plan, ignoreMissing 
 
 		planConfig.Value = param
 		plan.Config[paramName] = planConfig
+	}
+
+	for paramName, planConfig := range plan.Config {
+		if (planConfig.Value == nil || planConfig.Value.(string) == "") && planConfig.Required {
+			return fmt.Errorf("Required parameter '%v' not provided", paramName)
+		}
 	}
 
 	return nil
@@ -125,7 +131,6 @@ func (b *broker) GetInstance(ctx context.Context, instanceID string) (domain.Get
 		DashboardURL: templ["dashboardurl"].(string),
 		Parameters:   templ["parameters"],
 	}, nil
-
 }
 
 func (b *broker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {
@@ -208,8 +213,8 @@ func (b *broker) Update(ctx context.Context, instanceID string, details domain.U
 	}
 
 	//Process user params for update
-	ignoreMissing := (details.PlanID != details.PreviousValues.PlanID) //if changing plans then it's fine to have parameters stored that are not in the plans.json
-	err := processUserParams(previousParams, &plan, ignoreMissing)
+	ignoreUnknown := (details.PlanID != details.PreviousValues.PlanID) //if changing plans then it's fine to have parameters stored that are not in the plans.json
+	err := processUserParams(previousParams, &plan, ignoreUnknown)
 	if err != nil {
 		return domain.UpdateServiceSpec{}, err
 	}

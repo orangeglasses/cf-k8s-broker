@@ -3,6 +3,7 @@ package main
 type PlanConfigElement struct {
 	Value        interface{} `json:"value"`
 	UserOverride bool        `json:"userOverride"`
+	Required     bool        `json:"required,omitempty"`
 }
 
 type PlanConfig map[string]PlanConfigElement

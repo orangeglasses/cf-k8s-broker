@@ -45,8 +45,17 @@ func processUserParams(params map[string]interface{}, plan *Plan, ignoreUnknown 
 	}
 
 	for paramName, planConfig := range plan.Config {
-		if (planConfig.Value == nil || planConfig.Value.(string) == "") && planConfig.Required {
-			return fmt.Errorf("Required parameter '%v' not provided", paramName)
+		if planConfig.Required {
+			if planConfig.Value == nil {
+				return fmt.Errorf("Required parameter '%v' not provided", paramName)
+			}
+
+			switch planConfig.Value.(type) {
+			case string:
+				if planConfig.Value.(string) == "" {
+					return fmt.Errorf("Required parameter '%v' not provided", paramName)
+				}
+			}
 		}
 	}
 

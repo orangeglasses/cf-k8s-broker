@@ -11,5 +11,3 @@ applications:
   health-check-type: port
   buildpacks:
   - go_buildpack
-  env:
-    GOVERSION: 1.18
